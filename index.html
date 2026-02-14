@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cricket Net Run Rate Calculator</title>
+    <link rel="stylesheet" href="nrr.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1> Net Run Rate Calculator</h1>
+            <p class="subtitle">Calculate NRR & Predict Target Scenarios</p>
+        </header>
+
+        <div class="menu-tabs">
+            <button class="menu-tab active" onclick="switchTab('calculator')">
+                Calculate NRR
+            </button>
+            <button class="menu-tab" onclick="switchTab('predictor')">
+                NRR Predictor
+            </button>
+        </div>
+
+        <!-- CALCULATOR TAB -->
+        <div id="calculatorTab" class="tab-content active">
+        <div class="info-box">
+            <h3> What is Net Run Rate (NRR)?</h3>
+            <p>Net Run Rate is calculated as: <strong>(Runs Scored ÷ Overs Faced) - (Runs Conceded ÷ Overs Bowled)</strong></p>
+            <p style="margin-top: 8px;">Enter overs in format: whole overs + balls/6 (e.g., 20.3 means 20 overs and 3 balls)</p>
+            <p style="margin-top: 8px; color: #666; font-weight: 600;"><strong>ICC Rule:</strong> If a team is all out, check the "All Out" box. The full quota of overs (20 for T20, 50 for ODI) will be used in NRR calculation, not the actual overs faced.</p>
+        </div>
+
+        <div class="calculator-section">
+            <div class="team-section">
+                <h2>Team A</h2>
+                <div class="input-group">
+                    <div class="input-field">
+                        <label for="teamAName">Team Name (Optional)</label>
+                        <input type="text" id="teamAName" placeholder="e.g., India" style="padding: 12px 15px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 1em;">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <div class="input-field">
+                        <label for="teamACurrentNRR">Current NRR (Optional)</label>
+                        <input type="number" id="teamACurrentNRR" step="0.001" placeholder="e.g., +0.450">
+                        <span class="helper-text">Leave empty if this is the first match</span>
+                    </div>
+                    <div class="input-field">
+                        <label for="teamAMatchesPlayed">Matches Played Before</label>
+                        <input type="number" id="teamAMatchesPlayed" min="0" step="1" value="0" placeholder="e.g., 5">
+                        <span class="helper-text">Number of matches before this one</span>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <div class="input-field">
+                        <label for="runsScored">Runs Scored</label>
+                        <input type="number" id="runsScored" min="0" step="1" placeholder="e.g., 165">
+                        <span class="helper-text">Total runs scored by Team A</span>
+                    </div>
+                    <div class="input-field">
+                        <label for="oversFaced">Overs Faced</label>
+                        <input type="number" id="oversFaced" min="0" step="0.1" placeholder="e.g., 20.0">
+                        <span class="helper-text">Overs.Balls format (20.3 = 20 overs 3 balls)</span>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <div class="input-field">
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" id="teamAAllOut" style="width: auto; cursor: pointer;">
+                            <span>Team A was All Out</span>
+                        </label>
+                        <span class="helper-text">Check if all 10 wickets fell (uses full overs for NRR per ICC rules)</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="team-section">
+                <h2>Team B</h2>
+                <div class="input-group">
+                    <div class="input-field">
+                        <label for="teamBName">Team Name (Optional)</label>
+                        <input type="text" id="teamBName" placeholder="e.g., Australia" style="padding: 12px 15px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 1em;">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <div class="input-field">
+                        <label for="teamBCurrentNRR">Current NRR (Optional)</label>
+                        <input type="number" id="teamBCurrentNRR" step="0.001" placeholder="e.g., -0.320">
+                        <span class="helper-text">Leave empty if this is the first match</span>
+                    </div>
+                    <div class="input-field">
+                        <label for="teamBMatchesPlayed">Matches Played Before</label>
+                        <input type="number" id="teamBMatchesPlayed" min="0" step="1" value="0" placeholder="e.g., 5">
+                        <span class="helper-text">Number of matches before this one</span>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <div class="input-field">
+                        <label for="runsConceded">Runs Scored</label>
+                        <input type="number" id="runsConceded" min="0" step="1" placeholder="e.g., 150">
+                        <span class="helper-text">Total runs scored by Team B</span>
+                    </div>
+                    <div class="input-field">
+                        <label for="oversBowled">Overs Faced</label>
+                        <input type="number" id="oversBowled" min="0" step="0.1" placeholder="e.g., 20.0">
+                        <span class="helper-text">Overs.Balls format (20.3 = 20 overs 3 balls)</span>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <div class="input-field">
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" id="teamBAllOut" style="width: auto; cursor: pointer;">
+                            <span>Team B was All Out</span>
+                        </label>
+                        <span class="helper-text">Check if all 10 wickets fell (uses full overs for NRR per ICC rules)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="button-group">
+            <button class="calculate-btn" onclick="calculateNRR()">Calculate NRR</button>
+            <button class="reset-btn" onclick="resetForm()">Reset</button>
+        </div>
+
+        <div class="error-message" id="errorMessage"></div>
+
+        <div class="result-section" id="resultSection">
+            <h2>Net Run Rate Results</h2>
+            <div class="teams-nrr-container">
+                <div class="team-nrr-card">
+                    <h3 id="teamAResultName">Team A</h3>
+                    <div class="nrr-value" id="teamANrr">0.000</div>
+                    <div class="result-details">
+                        <div class="detail-card">
+                            <h4>Match NRR</h4>
+                            <p id="teamAMatchNRR">0.000</p>
+                        </div>
+                        <div class="detail-card">
+                            <h4>Current NRR</h4>
+                            <p id="teamACurrentNRRDisplay">0.000</p>
+                        </div>
+                        <div class="detail-card">
+                            <h4>Run Rate</h4>
+                            <p id="teamARunRate">0.00</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="team-nrr-card">
+                    <h3 id="teamBResultName">Team B</h3>
+                    <div class="nrr-value" id="teamBNrr">0.000</div>
+                    <div class="result-details">
+                        <div class="detail-card">
+                            <h4>Match NRR</h4>
+                            <p id="teamBMatchNRR">0.000</p>
+                        </div>
+                        <div class="detail-card">
+                            <h4>Current NRR</h4>
+                            <p id="teamBCurrentNRRDisplay">0.000</p>
+                        </div>
+                        <div class="detail-card">
+                            <h4>Run Rate</h4>
+                            <p id="teamBRunRate">0.00</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        </div>
+        <!-- END CALCULATOR TAB -->
+
+        <!-- PREDICTOR TAB -->
+        <div id="predictorTab" class="tab-content">
+            <div class="info-box">
+                <h3>NRR Predictor - Tournament Scenario</h3>
+                <p>Predict how many overs you need to chase a target to surpass your opponent's NRR, or how to defend to maintain your NRR advantage.</p>
+                <p style="margin-top: 8px;"><strong>Use Case:</strong> In IPL-style tournaments, teams often need to win by specific margins to qualify for playoffs. This tool helps you calculate exactly what's needed!</p>
+            </div>
+
+            <div class="mode-selector">
+                <button class="mode-btn active" onclick="switchMode('batting')">
+                     Batting (Chase Target)
+                </button>
+                <button class="mode-btn" onclick="switchMode('bowling')">
+                     Bowling (Defend Target)
+                </button>
+            </div>
+
+            <!-- BATTING MODE -->
+            <div id="battingMode" class="mode-content active">
+                <div class="team-section">
+                    <h2>Your Team's Current Stats</h2>
+                    <div class="input-group">
+                        <div class="input-field">
+                            <label for="yourTeamName">Team Name</label>
+                            <input type="text" id="yourTeamName" placeholder="e.g., Mumbai Indians" style="padding: 12px 15px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 1em;">
+                        </div>
+                        <div class="input-field">
+                            <label for="currentNRR">Current NRR</label>
+                            <input type="number" id="currentNRR" step="0.001" placeholder="e.g., +0.450">
+                            <span class="helper-text">Your team's current Net Run Rate</span>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <div class="input-field">
+                            <label for="matchesPlayed">Matches Played So Far</label>
+                            <input type="number" id="matchesPlayed" min="0" step="1" placeholder="e.g., 10">
+                            <span class="helper-text">Number of completed matches</span>
+                        </div>
+                        <div class="input-field">
+                            <label for="oversPerMatch">Overs Per Match</label>
+                            <input type="number" id="oversPerMatch" min="0" step="0.1" placeholder="e.g., 20.0">
+                            <span class="helper-text">Standard match overs (20 for T20, 50 for ODI)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="team-section">
+                    <h2>Current Match & Target</h2>
+                    <div class="input-group">
+                        <div class="input-field">
+                            <label for="targetRuns">Target to Chase</label>
+                            <input type="number" id="targetRuns" min="0" step="1" placeholder="e.g., 180">
+                            <span class="helper-text">Runs needed to win (opponent scored target - 1)</span>
+                        </div>
+                        <div class="input-field">
+                            <label for="opponentOversFaced">Opponent Overs Faced</label>
+                            <input type="number" id="opponentOversFaced" min="0" step="0.1" placeholder="e.g., 20.0">
+                            <span class="helper-text">Overs faced by opponent in this match</span>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <div class="input-field">
+                            <label for="maxOvers">Maximum Overs Available</label>
+                            <input type="number" id="maxOvers" min="0" step="0.1" placeholder="e.g., 20.0">
+                            <span class="helper-text">Total overs in the match (20 for T20, 50 for ODI)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="team-section">
+                    <h2>Opponent to Surpass</h2>
+                    <div class="input-group">
+                        <div class="input-field">
+                            <label for="opponentTeamName">Opponent Team Name</label>
+                            <input type="text" id="opponentTeamName" placeholder="e.g., Chennai Super Kings" style="padding: 12px 15px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 1em;">
+                        </div>
+                        <div class="input-field">
+                            <label for="targetNRR">Opponent's NRR to Beat</label>
+                            <input type="number" id="targetNRR" step="0.001" placeholder="e.g., +0.500">
+                            <span class="helper-text">NRR you need to surpass</span>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <div class="input-field">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="checkbox" id="sameOpponent" style="width: auto; cursor: pointer;">
+                                <span>Playing against this opponent in current match</span>
+                            </label>
+                            <span class="helper-text">Check if you're playing the same team whose NRR you need to beat. Their NRR will also change after this match.</span>
+                        </div>
+                    </div>
+                    <div class="input-group" id="opponentMatchesPlayedGroup" style="display: none;">
+                        <div class="input-field">
+                            <label for="opponentMatchesPlayed">Opponent's Matches Played Before</label>
+                            <input type="number" id="opponentMatchesPlayed" min="0" step="1" placeholder="e.g., 2">
+                            <span class="helper-text">Number of matches opponent played before this one</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button class="calculate-btn" onclick="predictBatting()"> Predict Overs Needed</button>
+                    <button class="reset-btn" onclick="resetPredictor()">Reset</button>
+                </div>
+
+                <div class="error-message" id="predictorError"></div>
+                <div class="predictor-result" id="battingResult"></div>
+            </div>
+
+            <!-- BOWLING MODE -->
+            <div id="bowlingMode" class="mode-content">
+                <div class="team-section">
+                    <h2>Your Team's Current Stats</h2>
+                    <div class="input-group">
+                        <div class="input-field">
+                            <label for="yourTeamNameBowl">Team Name</label>
+                            <input type="text" id="yourTeamNameBowl" placeholder="e.g., Mumbai Indians" style="padding: 12px 15px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 1em;">
+                        </div>
+                        <div class="input-field">
+                            <label for="currentNRRBowl">Current NRR</label>
+                            <input type="number" id="currentNRRBowl" step="0.001" placeholder="e.g., +0.450">
+                            <span class="helper-text">Your team's current Net Run Rate</span>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <div class="input-field">
+                            <label for="matchesPlayedBowl">Matches Played So Far</label>
+                            <input type="number" id="matchesPlayedBowl" min="0" step="1" placeholder="e.g., 10">
+                            <span class="helper-text">Number of completed matches</span>
+                        </div>
+                        <div class="input-field">
+                            <label for="oversPerMatchBowl">Overs Per Match</label>
+                            <input type="number" id="oversPerMatchBowl" min="0" step="0.1" placeholder="e.g., 20.0">
+                            <span class="helper-text">Standard match overs (20 for T20, 50 for ODI)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="team-section">
+                    <h2>Current Match - Your Batting</h2>
+                    <div class="input-group">
+                        <div class="input-field">
+                            <label for="yourRunsScored">Your Runs Scored</label>
+                            <input type="number" id="yourRunsScored" min="0" step="1" placeholder="e.g., 200">
+                            <span class="helper-text">Runs you scored in this match</span>
+                        </div>
+                        <div class="input-field">
+                            <label for="yourOversFaced">Your Overs Faced</label>
+                            <input type="number" id="yourOversFaced" min="0" step="0.1" placeholder="e.g., 20.0">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="team-section">
+                    <h2>Defense Target & Opponent</h2>
+                    <div class="input-group">
+                        <div class="input-field">
+                            <label for="maxOversBowl">Maximum Overs Available</label>
+                            <input type="number" id="maxOversBowl" min="0" step="0.1" placeholder="e.g., 20.0">
+                            <span class="helper-text">Total overs in the match</span>
+                        </div>
+                        <div class="input-field">
+                            <label for="opponentTeamNameBowl">Opponent Team Name</label>
+                            <input type="text" id="opponentTeamNameBowl" placeholder="e.g., Chennai Super Kings" style="padding: 12px 15px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 1em;">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <div class="input-field">
+                            <label for="targetNRRBowl">Opponent's NRR to Beat</label>
+                            <input type="number" id="targetNRRBowl" step="0.001" placeholder="e.g., +0.500">
+                            <span class="helper-text">NRR you need to stay above</span>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <div class="input-field">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="checkbox" id="sameOpponentBowl" style="width: auto; cursor: pointer;">
+                                <span>Playing against this opponent in current match</span>
+                            </label>
+                            <span class="helper-text">Check if you're playing the same team whose NRR you need to beat. Their NRR will change after this match.</span>
+                        </div>
+                    </div>
+                    <div class="input-group" id="opponentMatchesPlayedGroupBowl" style="display: none;">
+                        <div class="input-field">
+                            <label for="opponentMatchesPlayedBowl">Opponent's Matches Played Before</label>
+                            <input type="number" id="opponentMatchesPlayedBowl" min="0" step="1" placeholder="e.g., 2">
+                            <span class="helper-text">Number of matches opponent played before this one</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button class="calculate-btn" onclick="predictBowling()">🔮 Predict Defense Strategy</button>
+                    <button class="reset-btn" onclick="resetPredictor()">Reset</button>
+                </div>
+
+                <div class="error-message" id="predictorErrorBowl"></div>
+                <div class="predictor-result" id="bowlingResult"></div>
+            </div>
+        </div>
+        <!-- END PREDICTOR TAB -->
+
+        <footer>
+            <p>Net Run Rate Calculator | ICC Standard Rules</p>
+            <div class="social-links">
+                <a href="https://github.com/akash-1612" target="_blank" rel="noopener noreferrer">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                    </svg>
+                    GitHub
+                </a>
+                <a href="https://www.linkedin.com/in/akash-k-360208377/" target="_blank" rel="noopener noreferrer">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                    </svg>
+                    LinkedIn
+                </a>
+            </div>
+        </footer>
+    </div>
+
+    <script src="nrr.js"></script>
+</body>
+</html>
