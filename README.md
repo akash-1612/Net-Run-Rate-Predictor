@@ -2,6 +2,17 @@
 
 A comprehensive cricket Net Run Rate (NRR) calculator and tournament scenario predictor built with HTML, CSS, and JavaScript. This tool implements ICC-compliant NRR calculations and helps teams strategize for tournament qualification.
 
+## 🎉 Recent Updates (March 2026)
+
+### Bowling Predictor - Major Accuracy Improvement
+- **New Feature**: Now uses **actual cumulative statistics** instead of estimates
+- **Improved Accuracy**: Enter your team's total runs and overs from all previous matches for precise predictions
+- **Real-World Tested**: Calculations now match official tournament scenarios
+- **Better UX**: Clearer input fields with helpful descriptions
+- **Documentation**: New [USAGE_GUIDE.md](USAGE_GUIDE.md) with step-by-step instructions
+
+**Why This Matters**: Previous version estimated stats using a generic baseline (8 runs/over), leading to inaccurate predictions. The updated version uses your team's actual performance data for tournament-ready accuracy!
+
 ## Features
 
 ###  NRR Calculator
@@ -20,9 +31,10 @@ A comprehensive cricket Net Run Rate (NRR) calculator and tournament scenario pr
 - Detailed breakdown of projected NRR after the match
 
 #### Bowling Mode (Defend Target)
+- **Accurate Cumulative Stats**: Uses your team's actual total runs and overs from all previous matches (not estimates!)
 - Defense scenario calculator showing maximum runs allowed at different overs
 - Multiple scenario table showing best and worst case defenses
-- Same-opponent projection for when defending against the team you need to overtake
+- Real-time NRR projection based on actual performance data
 
 ##  Use Cases
 
@@ -51,6 +63,8 @@ Perfect for:
    - Or use a local server: `python -m http.server 8000`
    - Then navigate to `http://localhost:8000`
 
+3. **For Bowling Predictor**: Check [USAGE_GUIDE.md](USAGE_GUIDE.md) for detailed instructions on how to use the updated bowling predictor with cumulative stats.
+
 ## How It Works
 
 ### NRR Formula
@@ -63,11 +77,13 @@ When a team is **all out** before using their full quota of overs:
 - The calculation uses the **maximum overs** (20 for T20, 50 for ODI)
 - Example: Team all out at 116 in 18.2 overs → calculated as 116/20 overs
 
-### Same-Opponent Logic
-When playing against the team whose NRR you need to beat:
-- **Your target**: Beat their **projected new NRR** (not current)
-- **Batting**: Assumes opponent bowls full overs (their best-case NRR)
-- **Bowling**: Assumes opponent chases fast at 60% of overs (their best-case NRR)
+### Bowling Predictor Calculation
+The bowling predictor uses your team's **cumulative statistics** to calculate:
+- Your projected run rate after the current match
+- Maximum runs allowed at different overs to maintain NRR advantage
+- Best and worst case defense scenarios
+
+**Formula**: `Your NRR = (New Total Runs Scored / New Total Overs Faced) - (New Total Runs Conceded / New Total Overs Bowled)`
 
 ##  Features Showcase
 
@@ -85,7 +101,8 @@ Net-Run-Rate-Predictor/
 ├── index.html          # Main HTML structure
 ├── nrr.css            # All styling and animations
 ├── nrr.js             # JavaScript logic and calculations
-└── README.md          # Documentation
+├── README.md          # Documentation
+└── USAGE_GUIDE.md     # Detailed usage guide for bowling predictor
 ```
 
 ##  Technical Details
@@ -112,11 +129,18 @@ Net-Run-Rate-Predictor/
 - **USA**: 132/8 in 20 overs
 - **Result**: India NRR = +1.455 (This match only)
 
-### Example 2: Tournament Scenario
+### Example 2: Tournament Scenario (Batting Mode)
 - **Current NRR**: +0.450 (5 matches played)
 - **Target to beat**: +0.500
 - **Chasing**: 180 runs
 - **Result**: Need to chase in 14.3 overs to surpass target NRR
+
+### Example 3: Defense Scenario (Bowling Mode - New!)
+- **Team**: Pakistan (2 matches played)
+- **Cumulative Stats**: 250 runs in 40 overs, 268 runs conceded in 40 overs
+- **Current Match**: Scored 212 runs in 20 overs
+- **Target to Beat**: New Zealand's NRR of +1.390
+- **Result**: Must restrict opponent to 147 runs or less in 20 overs (or similar scenarios at different overs)
 
 ##  Contributing
 

@@ -175,7 +175,8 @@
         <div id="predictorTab" class="tab-content">
             <div class="info-box">
                 <h3>NRR Predictor - Tournament Scenario</h3>
-                <p>Predict how many overs you need to chase a target to surpass your opponent's NRR, or how to defend to maintain your NRR advantage.</p>
+                <p>Predict how you need to chase or defend to surpass your opponent's NRR for tournament qualification.</p>
+                <p style="margin-top: 8px;"><strong>Important:</strong> For accurate predictions, enter your team's <strong>cumulative runs and overs</strong> from ALL previous matches, not just the current NRR. This ensures precise calculations!</p>
                 <p style="margin-top: 8px;"><strong>Use Case:</strong> In IPL-style tournaments, teams often need to win by specific margins to qualify for playoffs. This tool helps you calculate exactly what's needed!</p>
             </div>
 
@@ -283,28 +284,40 @@
             <!-- BOWLING MODE -->
             <div id="bowlingMode" class="mode-content">
                 <div class="team-section">
-                    <h2>Your Team's Current Stats</h2>
+                    <h2>Your Team's Previous Matches Stats</h2>
                     <div class="input-group">
                         <div class="input-field">
                             <label for="yourTeamNameBowl">Team Name</label>
-                            <input type="text" id="yourTeamNameBowl" placeholder="e.g., Mumbai Indians" style="padding: 12px 15px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 1em;">
+                            <input type="text" id="yourTeamNameBowl" placeholder="e.g., Pakistan" style="padding: 12px 15px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 1em;">
                         </div>
                         <div class="input-field">
-                            <label for="currentNRRBowl">Current NRR</label>
-                            <input type="number" id="currentNRRBowl" step="0.001" placeholder="e.g., +0.450">
-                            <span class="helper-text">Your team's current Net Run Rate</span>
+                            <label for="matchesPlayedBowl">Matches Played So Far</label>
+                            <input type="number" id="matchesPlayedBowl" min="0" step="1" placeholder="e.g., 2">
+                            <span class="helper-text">Number of completed matches</span>
                         </div>
                     </div>
                     <div class="input-group">
                         <div class="input-field">
-                            <label for="matchesPlayedBowl">Matches Played So Far</label>
-                            <input type="number" id="matchesPlayedBowl" min="0" step="1" placeholder="e.g., 10">
-                            <span class="helper-text">Number of completed matches</span>
+                            <label for="cumulativeRunsScoredBowl">Total Runs Scored (All Matches)</label>
+                            <input type="number" id="cumulativeRunsScoredBowl" min="0" step="1" placeholder="e.g., 250">
+                            <span class="helper-text">Cumulative runs from all previous matches</span>
                         </div>
                         <div class="input-field">
-                            <label for="oversPerMatchBowl">Overs Per Match</label>
-                            <input type="number" id="oversPerMatchBowl" min="0" step="0.1" placeholder="e.g., 20.0">
-                            <span class="helper-text">Standard match overs (20 for T20, 50 for ODI)</span>
+                            <label for="cumulativeOversFacedBowl">Total Overs Faced (All Matches)</label>
+                            <input type="number" id="cumulativeOversFacedBowl" min="0" step="0.1" placeholder="e.g., 40.0">
+                            <span class="helper-text">Cumulative overs from all previous matches</span>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <div class="input-field">
+                            <label for="cumulativeRunsConcededBowl">Total Runs Conceded (All Matches)</label>
+                            <input type="number" id="cumulativeRunsConcededBowl" min="0" step="1" placeholder="e.g., 268">
+                            <span class="helper-text">Cumulative runs conceded from all previous matches</span>
+                        </div>
+                        <div class="input-field">
+                            <label for="cumulativeOversBowledBowl">Total Overs Bowled (All Matches)</label>
+                            <input type="number" id="cumulativeOversBowledBowl" min="0" step="0.1" placeholder="e.g., 40.0">
+                            <span class="helper-text">Cumulative overs from all previous matches</span>
                         </div>
                     </div>
                 </div>
@@ -314,12 +327,13 @@
                     <div class="input-group">
                         <div class="input-field">
                             <label for="yourRunsScored">Your Runs Scored</label>
-                            <input type="number" id="yourRunsScored" min="0" step="1" placeholder="e.g., 200">
+                            <input type="number" id="yourRunsScored" min="0" step="1" placeholder="e.g., 212">
                             <span class="helper-text">Runs you scored in this match</span>
                         </div>
                         <div class="input-field">
                             <label for="yourOversFaced">Your Overs Faced</label>
                             <input type="number" id="yourOversFaced" min="0" step="0.1" placeholder="e.g., 20.0">
+                            <span class="helper-text">Overs faced in this match</span>
                         </div>
                     </div>
                 </div>
@@ -334,30 +348,19 @@
                         </div>
                         <div class="input-field">
                             <label for="opponentTeamNameBowl">Opponent Team Name</label>
-                            <input type="text" id="opponentTeamNameBowl" placeholder="e.g., Chennai Super Kings" style="padding: 12px 15px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 1em;">
+                            <input type="text" id="opponentTeamNameBowl" placeholder="e.g., Sri Lanka" style="padding: 12px 15px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 1em;">
                         </div>
                     </div>
                     <div class="input-group">
                         <div class="input-field">
-                            <label for="targetNRRBowl">Opponent's NRR to Beat</label>
-                            <input type="number" id="targetNRRBowl" step="0.001" placeholder="e.g., +0.500">
-                            <span class="helper-text">NRR you need to stay above</span>
+                            <label for="targetNRRBowl">Target NRR to Beat</label>
+                            <input type="number" id="targetNRRBowl" step="0.001" placeholder="e.g., +1.390">
+                            <span class="helper-text">NRR you need to stay above (e.g., rival team's NRR)</span>
                         </div>
-                    </div>
-                    <div class="input-group">
                         <div class="input-field">
-                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                                <input type="checkbox" id="sameOpponentBowl" style="width: auto; cursor: pointer;">
-                                <span>Playing against this opponent in current match</span>
-                            </label>
-                            <span class="helper-text">Check if you're playing the same team whose NRR you need to beat. Their NRR will change after this match.</span>
-                        </div>
-                    </div>
-                    <div class="input-group" id="opponentMatchesPlayedGroupBowl" style="display: none;">
-                        <div class="input-field">
-                            <label for="opponentMatchesPlayedBowl">Opponent's Matches Played Before</label>
-                            <input type="number" id="opponentMatchesPlayedBowl" min="0" step="1" placeholder="e.g., 2">
-                            <span class="helper-text">Number of matches opponent played before this one</span>
+                            <label for="targetTeamNameBowl">Target Team Name (Optional)</label>
+                            <input type="text" id="targetTeamNameBowl" placeholder="e.g., New Zealand" style="padding: 12px 15px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 1em;">
+                            <span class="helper-text">Name of team whose NRR you need to beat</span>
                         </div>
                     </div>
                 </div>

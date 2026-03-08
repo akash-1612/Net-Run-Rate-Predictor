@@ -48,18 +48,6 @@ document.addEventListener('DOMContentLoaded', function() {
             opponentMatchesPlayedGroup.style.display = 'none';
         }
     });
-
-    // Same for bowling mode
-    const sameOpponentCheckboxBowl = document.getElementById('sameOpponentBowl');
-    const opponentMatchesPlayedGroupBowl = document.getElementById('opponentMatchesPlayedGroupBowl');
-    
-    sameOpponentCheckboxBowl.addEventListener('change', function() {
-        if (this.checked) {
-            opponentMatchesPlayedGroupBowl.style.display = 'block';
-        } else {
-            opponentMatchesPlayedGroupBowl.style.display = 'none';
-        }
-    });
 });
 
 // Convert overs.balls format to actual overs (decimal)
@@ -463,97 +451,79 @@ function predictBowling() {
     try {
         // Get inputs
         const yourTeamName = document.getElementById('yourTeamNameBowl').value.trim() || 'Your Team';
-        const currentNRR = parseFloat(document.getElementById('currentNRRBowl').value);
         const matchesPlayed = parseFloat(document.getElementById('matchesPlayedBowl').value);
-        const oversPerMatchInput = parseFloat(document.getElementById('oversPerMatchBowl').value);
+        const cumulativeRunsScored = parseFloat(document.getElementById('cumulativeRunsScoredBowl').value);
+        const cumulativeOversFaced = parseFloat(document.getElementById('cumulativeOversFacedBowl').value);
+        const cumulativeRunsConceded = parseFloat(document.getElementById('cumulativeRunsConcededBowl').value);
+        const cumulativeOversBowled = parseFloat(document.getElementById('cumulativeOversBowledBowl').value);
         const yourRunsScored = parseFloat(document.getElementById('yourRunsScored').value);
         const yourOversFacedInput = parseFloat(document.getElementById('yourOversFaced').value);
         const maxOversInput = parseFloat(document.getElementById('maxOversBowl').value);
-        const opponentTeamName = document.getElementById('opponentTeamNameBowl').value.trim() || 'Opponent Team';
-        let targetNRR = parseFloat(document.getElementById('targetNRRBowl').value);
-        const sameOpponentBowl = document.getElementById('sameOpponentBowl').checked;
-        const opponentMatchesPlayedBowl = sameOpponentBowl ? parseFloat(document.getElementById('opponentMatchesPlayedBowl').value) : 0;
+        const opponentTeamName = document.getElementById('opponentTeamNameBowl').value.trim() || 'Opponent';
+        const targetNRR = parseFloat(document.getElementById('targetNRRBowl').value);
+        const targetTeamName = document.getElementById('targetTeamNameBowl').value.trim() || 'Target Team';
 
         // Validate
-        if (isNaN(currentNRR) || isNaN(matchesPlayed) || isNaN(oversPerMatchInput) || 
+        if (isNaN(matchesPlayed) || isNaN(cumulativeRunsScored) || isNaN(cumulativeOversFaced) ||
+            isNaN(cumulativeRunsConceded) || isNaN(cumulativeOversBowled) ||
             isNaN(yourRunsScored) || isNaN(yourOversFacedInput) || 
             isNaN(maxOversInput) || isNaN(targetNRR)) {
             throw new Error('Please fill in all required fields');
         }
 
-        if (sameOpponentBowl && isNaN(opponentMatchesPlayedBowl)) {
-            throw new Error('Please enter opponent\'s matches played before this match');
+        if (cumulativeOversFaced <= 0 || cumulativeOversBowled <= 0) {
+            throw new Error('Overs must be greater than 0');
         }
 
         // Convert overs
-        const oversPerMatch = convertOversToDecimal(oversPerMatchInput);
         const yourOversFaced = convertOversToDecimal(yourOversFacedInput);
         const maxOvers = convertOversToDecimal(maxOversInput);
         
-        // Calculate cumulative stats from current NRR
-        const totalOversFaced = matchesPlayed * oversPerMatch;
-        const totalOversBowled = matchesPlayed * oversPerMatch;
-        const baselineRunRate = oversPerMatch >= 40 ? 5.0 : 8.0;
-        const totalRunsScored = totalOversFaced * baselineRunRate;
-        const totalRunsConceded = totalRunsScored - (currentNRR * totalOversBowled);
-
-        // If playing against same opponent, calculate their NEW NRR after this match
-        if (sameOpponentBowl) {
-            // Calculate opponent's current cumulative stats
-            const opponentTotalOversFaced = opponentMatchesPlayedBowl * oversPerMatch;
-            const opponentTotalOversBowled = opponentMatchesPlayedBowl * oversPerMatch;
-            const opponentBaselineRunRate = oversPerMatch >= 40 ? 5.0 : 8.0;
-            const opponentTotalRunsScored = opponentTotalOversFaced * opponentBaselineRunRate;
-            const opponentTotalRunsConceded = opponentTotalRunsScored - (targetNRR * opponentTotalOversBowled);
-            
-            const estimatedOpponentOvers = maxOvers * 0.6; // Assume they chase in 60% of overs
-            const opponentNewTotalRunsScored = opponentTotalRunsScored + yourRunsScored;
-            const opponentNewTotalOversFaced = opponentTotalOversFaced + estimatedOpponentOvers;
-            const opponentNewTotalRunsConceded = opponentTotalRunsConceded + yourRunsScored - 1; // You scored this
-            const opponentNewTotalOversBowled = opponentTotalOversBowled + yourOversFaced;
-            
-            const opponentNewNRR = (opponentNewTotalRunsScored / opponentNewTotalOversFaced) - 
-                                 (opponentNewTotalRunsConceded / opponentNewTotalOversBowled);
-            
-            targetNRR = opponentNewNRR;
-            
-            console.log(`Opponent's current NRR: ${parseFloat(document.getElementById('targetNRRBowl').value).toFixed(3)}`);
-            console.log(`Opponent's projected new NRR after match (if they chase fast): ${targetNRR.toFixed(3)}`);
-        }
-
-        // Calculate required NRR
-        const requiredNRR = targetNRR + 0.001;
+        // Calculate current NRR for display
+        const currentNRR = (cumulativeRunsScored / cumulativeOversFaced) - 
+                          (cumulativeRunsConceded / cumulativeOversBowled);
 
         // After this match, your batting stats update
-        const newTotalRunsScored = totalRunsScored + yourRunsScored;
-        const newTotalOversFaced = totalOversFaced + yourOversFaced;
-
-
+        const newTotalRunsScored = cumulativeRunsScored + yourRunsScored;
+        const newTotalOversFaced = cumulativeOversFaced + yourOversFaced;
         const runRateFor = newTotalRunsScored / newTotalOversFaced;
 
+        // Required NRR - need to be slightly above target
+        const requiredNRR = targetNRR + 0.001;
+
+        // Calculate scenarios: for different overs bowled, what's the max runs allowed?
         const scenarios = [];
         
         for (let overs = 10; overs <= maxOvers; overs += 0.5) {
-            const maxRunsAllowed = (runRateFor - requiredNRR) * (totalOversBowled + overs) - totalRunsConceded;
+            // New NRR = runRateFor - (newTotalRunsConceded / newTotalOversBowled)
+            // We need: runRateFor - (newTotalRunsConceded / newTotalOversBowled) >= requiredNRR
+            // So: (newTotalRunsConceded / newTotalOversBowled) <= runRateFor - requiredNRR
+            // Therefore: newTotalRunsConceded <= (runRateFor - requiredNRR) * newTotalOversBowled
+            
+            const newTotalOversBowled = cumulativeOversBowled + overs;const maxTotalRunsConceded = (runRateFor - requiredNRR) * newTotalOversBowled;
+            const maxRunsAllowed = maxTotalRunsConceded - cumulativeRunsConceded;
+            
             if (maxRunsAllowed >= 0) {
+                const yourNRR = runRateFor - ((cumulativeRunsConceded + maxRunsAllowed) / newTotalOversBowled);
                 scenarios.push({
                     overs: overs,
                     maxRuns: Math.floor(maxRunsAllowed),
-                    nrr: runRateFor - ((totalRunsConceded + maxRunsAllowed) / (totalOversBowled + overs))
+                    nrr: yourNRR
                 });
             }
         }
 
         if (scenarios.length === 0) {
             showPredictorError('bowlingResult', 
-                `Cannot Maintain NRR Advantage`,
-                `Based on your current stats, it's mathematically impossible to defend and maintain NRR above ${targetNRR.toFixed(3)}.<br><br>
-                Your batting performance in this match wasn't strong enough to create a defendable NRR cushion.`);
+                `Cannot Surpass Target NRR`,
+                `Based on your cumulative stats and this match's batting performance, it's mathematically impossible to defend and maintain NRR above ${targetNRR.toFixed(3)}.<br><br>
+                Your batting performance (${yourRunsScored} runs in ${formatOvers(yourOversFaced)} overs) wasn't strong enough to create a defendable NRR cushion.`);
             return;
         }
 
         // Display bowling result
-        displayBowlingResult(yourTeamName, opponentTeamName, yourRunsScored, scenarios, targetNRR, runRateFor, sameOpponentBowl, parseFloat(document.getElementById('targetNRRBowl').value));
+        displayBowlingResult(yourTeamName, opponentTeamName, yourRunsScored, scenarios, 
+                           targetNRR, runRateFor, targetTeamName, currentNRR);
 
     } catch (error) {
         showPredictorErrorMessage('predictorErrorBowl', error.message);
@@ -606,7 +576,7 @@ function displayBattingResult(teamName, opponentName, requiredOvers, targetRuns,
     resultDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
-function displayBowlingResult(teamName, opponentName, yourRuns, scenarios, targetNRR, runRateFor, sameOpponentBowl, originalTargetNRR) {
+function displayBowlingResult(teamName, opponentName, yourRuns, scenarios, targetNRR, runRateFor, targetTeamName, currentNRR) {
     const resultDiv = document.getElementById('bowlingResult');
     
     // Best case: all out as early as possible
@@ -624,25 +594,17 @@ function displayBowlingResult(teamName, opponentName, yourRuns, scenarios, targe
             </tr>
         `;
     });
-
-    let nrrExplanation = '';
-    if (sameOpponentBowl) {
-        nrrExplanation = `
-            <hr style="border: 1px solid rgba(255,255,255,0.3); margin: 15px 0;">
-            <p style="font-size: 0.95em; opacity: 0.9;"><strong>Note:</strong> ${opponentName}'s current NRR is ${originalTargetNRR >= 0 ? '+' : ''}${originalTargetNRR.toFixed(3)}, but after this match (if they chase fast) their projected NRR will be ${targetNRR >= 0 ? '+' : ''}${targetNRR.toFixed(3)}. You need to defend to stay above their NEW projected NRR.</p>
-        `;
-    }
     
     resultDiv.innerHTML = `
         <h3>🛡️ Defense Strategy for ${teamName}</h3>
-        <div class="big-number">${yourRuns} Runs Defended</div>
+        <div class="big-number">${yourRuns} Runs to Defend</div>
         <div class="predictor-details">
-            <p><strong>Your Score:</strong> ${yourRuns} runs</p>
-            <p><strong>Your Run Rate For:</strong> ${runRateFor.toFixed(2)}</p>
-            <p><strong>${opponentName}'s ${sameOpponentBowl ? 'Projected' : ''} NRR to Beat:</strong> ${targetNRR >= 0 ? '+' : ''}${targetNRR.toFixed(3)}</p>
-            ${nrrExplanation}
+            <p><strong>Your Current NRR:</strong> ${currentNRR >= 0 ? '+' : ''}${currentNRR.toFixed(3)}</p>
+            <p><strong>Your Score This Match:</strong> ${yourRuns} runs</p>
+            <p><strong>Your Projected Run Rate For:</strong> ${runRateFor.toFixed(2)}</p>
+            <p><strong>${targetTeamName}'s NRR to Beat:</strong> ${targetNRR >= 0 ? '+' : ''}${targetNRR.toFixed(3)}</p>
             <hr style="border: 1px solid rgba(255,255,255,0.3); margin: 15px 0;">
-            <p style="font-size: 1.15em;"><strong>Defense Scenarios to Beat ${opponentName}'s NRR:</strong></p>
+            <p style="font-size: 1.15em;"><strong>Defense Scenarios vs ${opponentName} to Beat ${targetTeamName}'s NRR:</strong></p>
             <table style="width: 100%; margin-top: 10px; text-align: center;">
                 <thead>
                     <tr style="border-bottom: 2px solid rgba(255,255,255,0.4);">
@@ -657,7 +619,7 @@ function displayBowlingResult(teamName, opponentName, yourRuns, scenarios, targe
             </table>
             <hr style="border: 1px solid rgba(255,255,255,0.3); margin: 15px 0;">
             <p style="font-size: 1.1em;"><strong>Best Case:</strong> Restrict to ${bestScenario.maxRuns} runs in ${formatOvers(bestScenario.overs)} overs</p>
-            <p style="font-size: 1.1em;"> <strong>Worst Case:</strong> Can allow up to ${worstScenario.maxRuns} runs in ${formatOvers(worstScenario.overs)} overs</p>
+            <p style="font-size: 1.1em;"><strong>Worst Case:</strong> Can allow up to ${worstScenario.maxRuns} runs in ${formatOvers(worstScenario.overs)} overs</p>
         </div>
     `;
     
@@ -706,17 +668,17 @@ function resetPredictor() {
 
     // Reset bowling mode
     document.getElementById('yourTeamNameBowl').value = '';
-    document.getElementById('currentNRRBowl').value = '';
     document.getElementById('matchesPlayedBowl').value = '';
-    document.getElementById('oversPerMatchBowl').value = '';
+    document.getElementById('cumulativeRunsScoredBowl').value = '';
+    document.getElementById('cumulativeOversFacedBowl').value = '';
+    document.getElementById('cumulativeRunsConcededBowl').value = '';
+    document.getElementById('cumulativeOversBowledBowl').value = '';
     document.getElementById('yourRunsScored').value = '';
     document.getElementById('yourOversFaced').value = '';
     document.getElementById('maxOversBowl').value = '';
     document.getElementById('opponentTeamNameBowl').value = '';
     document.getElementById('targetNRRBowl').value = '';
-    document.getElementById('sameOpponentBowl').checked = false;
-    document.getElementById('opponentMatchesPlayedBowl').value = '';
-    document.getElementById('opponentMatchesPlayedGroupBowl').style.display = 'none';
+    document.getElementById('targetTeamNameBowl').value = '';
 
     // Hide results
     document.getElementById('battingResult').classList.remove('show');
